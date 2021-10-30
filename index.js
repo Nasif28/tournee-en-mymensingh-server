@@ -37,13 +37,12 @@ async function run() {
             res.json(places);
         })
 
-        // // Use POST to get data by keys
-        // app.post('/products/byKeys', async (req, res) => {
-        //     const keys = req.body;
-        //     const query = { key: { $in: keys } }
-        //     const products = await productCollection.find(query).toArray();
-        //     res.json(products);
-        // });
+        // POST API - ADD NEW PLACE
+        app.post('/places', async (req, res) => {
+            const addPlace = req.body;
+            const result = await placesCollection.insertOne(addPlace);
+            res.json(result);
+        });
 
         // Add Orders API
         app.post('/booking', async (req, res) => {
@@ -52,22 +51,48 @@ async function run() {
             res.json(result);
         })
 
-        // POST API - ADD NEW PLACE
-        app.post('/places', async (req, res) => {
-            const addPlace = req.body;
-            const result = await placesCollection.insertOne(addPlace);
-            res.json(result);
+        // GET ALL BOOKING
+        app.get("/allBooking", async (req, res) => {
+            const result = await bookingCollection.find({}).toArray();
+            res.send(result);
         });
 
-        // // DELETE API
-        // app.delete('/services/:id', async (req, res) => {
-        //     const id = req.params.id;
-        //     const query = { _id: ObjectId(id) };
-        //     const result = await servicesCollection.deleteOne(query);
-        //     res.send(result);
-        // })
+        // DELETE AllBooking API
+        app.delete("/deleteBooking/:id", async (req, res) => {
+            console.log(req.params.id);
+            const result = await bookingCollection.deleteOne({
+                _id: ObjectId(req.params.id),
+            });
+            res.send(result);
+        });
+
+        // GET MyBooking
+        app.get("/myBooking/:email", async (req, res) => {
+            const result = await bookingCollection.find({
+                email: req.params.email,
+            }).toArray();
+            res.send(result);
+        });
+
+        // DELETE MyBooking API
+        app.delete("/deleteMyBooking/:id", async (req, res) => {
+            const result = await bookingCollection.deleteOne({
+                _id: ObjectId(req.params.id),
+            });
+            res.send(result);
+        });
+
+        // UPDATE AllBooking STATUS API
+        app.put("/updateStatus/:id", async (req, res) => {
+            const result = await bookingCollection.updateOne({
+                _id: ObjectId(req.params.id)}, 
+                {$set: {'status': 'Confirmed'}});
+            res.send(result);
+        });
+
 
     }
+
     finally {
         // await client.close();
     }
