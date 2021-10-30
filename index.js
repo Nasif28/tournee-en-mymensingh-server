@@ -49,7 +49,7 @@ async function run() {
             const booking = req.body;
             const result = await bookingCollection.insertOne(booking);
             res.json(result);
-        })
+        });
 
         // GET ALL BOOKING
         app.get("/allBooking", async (req, res) => {
@@ -82,15 +82,19 @@ async function run() {
             res.send(result);
         });
 
-        // UPDATE AllBooking STATUS API
-        app.put("/updateStatus/:id", async (req, res) => {
-            const result = await bookingCollection.updateOne({
-                _id: ObjectId(req.params.id)}, 
-                {$set: {'status': 'Confirmed'}});
-            res.send(result);
+        // PUT UPDATE STATUS API
+        app.put("/updateStatus", async (req, res) => {
+            const id = req.body.id;
+            const query = { _id: ObjectId(id) }
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    'status': 'Approved'
+                },
+            };
+            const service = await bookingCollection.updateOne(query, updateDoc, options);
+            res.send(service);
         });
-
-
     }
 
     finally {
